@@ -1,0 +1,289 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
+
+<link rel="import" href="../../bower_components/neon-animation/neon-animation-runner-behavior.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-from-left-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-from-right-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-left-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-right-animation.html">
+
+<dom-module id="periodic-filter">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      #filters {
+        text-align: center;
+      }
+      span.filter {
+        cursor: pointer;
+        padding: 5px 20px;
+        font-size: 250%;
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+
+    <div id="filters">
+      <iron-selector attr-for-selected="name" selected="{{selected}}">
+        <span class="filter hidden" id="0" name="all">All</span>
+        <span class="filter hidden" id="1" name="counterBreakfast">Breakfast</span>
+        <span class="filter hidden" id="2" name="counterWonka">Wonka</span>
+        <span class="filter hidden" id="3" name="counterDessert">Dessert</span>
+        <span class="filter hidden" id="4" name="counterHerbal">Herbal</span>
+        <span class="filter hidden" id="5" name="counterFruit">Fruity</span>
+      </iron-selector>
+    </div>
+    <!--<div id="search">
+      <label>
+        Search:
+        <input type="text" value="{{searchString::input}}" />
+      </label>
+    </div> -->
+
+  </template>
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'periodic-filter',
+      behaviors: [
+        Polymer.NeonAnimationRunnerBehavior
+      ],
+
+      ready: function() {
+        this.selected = 'all';
+
+        var nodes = Polymer.dom(this.$.filters).firstElementChild.children;
+        var startNode = nodes[this.selected];
+        this.toggleClass('hidden', false, startNode);
+        console.log(this.animationConfig);
+      },
+
+      properties: {
+        selected: {
+          type: String,
+          value: 'all',
+          notify: true,
+          observer: '_selected'
+        },
+        searchString: {
+          type: String,
+          value: '',
+          notify: true,
+          observer: '_searchString'
+        },
+        filter: {
+          type: String,
+          value: '',
+          notify: true,
+          observer: '_filter'
+        },
+        LastFilter: {
+          type: String,
+          value: null,
+          notify: true
+        },
+        firstRun: {
+          type: Boolean,
+          value: true,
+          notify: false
+        },
+        newFilter: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        oldFilter: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        direction: {
+          type: Number,
+          value: 0,
+          notify: false
+        },
+
+        animationConfig: {
+          value: function() {
+            return {
+              'entryLeft': [
+                /*{
+                  name: 'periodic-fade-in',
+                  node: null,
+                  timing: {duration: 2000}
+                },*/
+                {
+                  name: 'slide-from-left-animation',
+                  node: this,
+                  timing: {delay: 0, duration: 300}
+                }
+              ],
+              'entryRight':  [
+                /*{
+                  name: 'periodic-fade-in',
+                  node: null,
+                  timing: {duration: 2000}
+                },*/
+                {
+                  name: 'slide-from-right-animation',
+                  node: this,
+                  timing: {delay: 0,duration: 300}
+                }
+              ],
+              'exitLeft': [
+                {
+                  name: 'slide-left-animation',
+                  node: this,
+                  timing: {duration: 1000}
+                }
+                /*{
+                  name: 'periodic-fade-out',
+                  node: null,
+                  timing: {duration: 1000}
+                }*/
+              ],
+              'exitRight': [
+                {
+                  name: 'slide-right-animation',
+                  node: this,
+                  timing: {duration: 1000}
+                }
+                /*{
+                  name: 'periodic-fade-out',
+                    node: null,
+                  timing: {duration: 1000}
+                }*/
+              ]
+            };
+          }
+        }
+      },
+
+      selectNext: function() {
+        this.querySelector('iron-selector').selectNext();
+      },
+      selectPrevious: function() {
+        this.querySelector('iron-selector').selectPrevious();
+      },
+      findNode: function() {
+        var nodes = Polymer.dom(this.$.filters).firstElementChild.children;
+
+        return nodes[this.selected];
+      },
+      findLastNode: function() {
+        var nodes = Polymer.dom(this.$.filters).firstElementChild.children;
+        //console.log(this.lastFilter);
+        return nodes[this.lastFilter];
+      },
+      findNextNode: function() {
+        var nodes = Polymer.dom(this.$.filters).firstElementChild.children;
+        var selectedNode = nodes[this.selected];
+        var nextNode = null;
+
+        for(var i = 0; i < nodes.length;i++) {
+          if(nodes[i] === selectedNode) {
+            if (nodes[i].id === nodes.length - 1) {
+              nextNode = nodes[0];
+            } else {
+              nextNode = nodes[i + 1];
+            }
+          }
+        }
+
+        //console.log(nextNode);
+        return nextNode;
+      },
+      findPreviousNode: function() {
+        var nodes = Polymer.dom(this.$.filters).firstElementChild.children;
+        var selectedNode = nodes[this.selected];
+        var previousNode = null;
+
+        for(var i = 0; i < nodes.length;i++) {
+          if(nodes[i] === selectedNode) {
+            if (nodes[i].id === 0) {
+              previousNode = nodes[nodes.length - 1];
+            } else {
+              previousNode = nodes[i - 1];
+            }
+
+          }
+        }
+
+        //console.log(previousNode);
+        return previousNode;
+      },
+      _selected: function(string) {
+        this.filter = string;
+        if(string) {
+          this.searchString = '';
+        }
+      },
+      _searchString: function(newValue) {
+        this.filter = newValue;
+      },
+      _filter: function(newValue, oldValue) {
+
+        this.lastFilter = oldValue;
+        console.log(this.direction);
+
+        if (this.direction < 0) {
+          //console.log(this.findLastNode());
+          //this.animationConfig.exitRight[0].node = this.findLastNode();
+          //this.animationConfig.exitRight[1].node = this.findLastNode();
+          //this.playAnimation('exitRight');
+          this.toggleClass('hidden', true, this.findLastNode());
+
+          this.toggleClass('hidden', false, this.findNode());
+          //console.log(this.findNode());
+          //this.animationConfig.entryLeft[0].node = this.findNode();
+          //this.animationConfig.entryLeft[1].node = this.findPreviousNode();
+          this.playAnimation('entryLeft');
+
+          document.querySelector('search-bar').searchInput = '';
+          this.firstRun = false;
+          //console.log(this);
+        }
+
+        if (this.direction > 0) {
+          //console.log(this.findLastNode());
+          //this.animationConfig.exitLeft[0].node = this.findLastNode();
+          //this.animationConfig.exitLeft[1].node = this.findNextNode();
+          //this.playAnimation('exitLeft');
+          this.toggleClass('hidden', true, this.findLastNode());
+
+          this.toggleClass('hidden', false, this.findNode());
+          //console.log(this.findNode());
+          //this.animationConfig.entryRight[0].node = this.findNode();
+          //this.animationConfig.entryRight[1].node = this.findPreviousNode();
+          this.playAnimation('entryRight');
+
+          document.querySelector('search-bar').searchInput = '';
+          this.firstRun = false;
+          //console.log(this);
+        }
+
+        if (this.direction === 0 && !this.firstRun) {
+          this.toggleClass('hidden', true, this.findLastNode());
+          console.log('zero');
+        }
+      }
+    });
+  })();
+  </script>
+</dom-module>

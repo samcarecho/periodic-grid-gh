@@ -19,24 +19,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         display: inline-block;
         height: 14vh;
         width: 14vh;
-        margin: 0.75vh;
-        padding: 0.5vh;
+        margin: 1vh;
+        padding: 1.5vh;
         text-align: center;
-        border-radius: 0vh;
+        border-radius: 50%;
         border: 0vh solid;
         color: #fff;
         background-color: #ccc;
       }
       .symbol {
         display: block;
-        font-size: 9vw;
         font-family: 'Montserrat', sans-serif;
         font-weight: 900;
         padding: 0;
       }
       .short-name {
         display: block;
-        font-size: 3vw;
         white-space: nowrap;
         overflow: hidden;
         text-wrap: none;
@@ -44,10 +42,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         font-weight: 400;
         padding: 0;
       }
+      .noselect {
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none;   /* Chrome/Safari/Opera */
+        -khtml-user-select: none;    /* Konqueror */
+        -moz-user-select: none;      /* Firefox */
+        -ms-user-select: none;       /* IE/Edge */
+        user-select: none;           /* non-prefixed version, currently
+                                 not supported by any browser */
+      }
 
     </style>
-    <div class="symbol">{{symbol}}</div>
-    <div class="short-name">{{shortName}}</div>
+    <div class="symbol noselect">{{symbol}}</div>
+    <div class="short-name noselect">{{shortName}}</div>
   </template>
   <script>
   (function() {
@@ -56,11 +63,42 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     Polymer({
       is: 'periodic-element',
 
+      ready: function() {
+        var intViewportWidth = window.innerWidth;
+        //var intViewportHeight = window.innerHeight;
+        var periodicElPadding = 0;
+        var maxW = 175;
+
+        if (intViewportWidth <= 1024) {
+          periodicElPadding = 3;
+        }
+        else {
+          periodicElPadding = 8;
+        }
+
+        var periodicElWidth = (intViewportWidth - (8 * periodicElPadding) )/4;
+        //console.log(this.root);
+        var wCalc = periodicElWidth > maxW? maxW : periodicElWidth;
+        this.style.minWidth = wCalc + 'px';
+        this.style.maxWidth = wCalc + 'px';
+        this.style.height = wCalc + 'px';
+
+        this.querySelector('.symbol').style.fontSize = (wCalc * 0.5) + 'px';
+        this.querySelector('.short-name').style.fontSize = (wCalc * 0.15) + 'px';
+        this.querySelector('.short-name').style.marginTop = (wCalc * 0.05) / 2 + 'px';
+
+      },
+
       properties: {
         symbol: {
           type: String,
           value: 'JE',
           notify: true
+        },
+        periodicElWidth: {
+          type: String,
+          value: 0,
+          notify:false
         },
         shortName: {
           type: String,
