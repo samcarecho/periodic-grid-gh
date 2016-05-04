@@ -13142,20 +13142,10 @@ function scrollToTop(ctx, next) {
 app.scrollPageToTop();
 next();
 }
-page('/', scrollToTop, function () {
+page('/periodic-grid-gh', scrollToTop, function () {
 app.route = 'home';
 });
-page('/users', scrollToTop, function () {
-app.route = 'users';
-});
-page('/users/:name', scrollToTop, function (data) {
-app.route = 'user-info';
-app.params = data.params;
-});
-page('/contact', scrollToTop, function () {
-app.route = 'contact';
-});
-page({ hashbang: true });
+page({ hashbang: false });
 });
 (function () {
 'use strict';
